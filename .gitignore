@@ -101,6 +101,7 @@ test-*.ts
 *GRAPHQL_PLAYGROUND*.md
 seed-*.js
 sample-queries.graphql
+DELIVERY_SUMMARY.md
 
 # Keep important documentation
 !ARCHITECTURE_DECISIONS.md
