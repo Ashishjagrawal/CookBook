@@ -42,7 +42,28 @@ A modern, scalable recipe sharing platform built with NestJS, GraphQL, PostgreSQ
 
 ## 🚀 Quick Start
 
-### Automated Setup (Recommended)
+### Option 1: AWS Deployment (Recommended for Production)
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd CookBook
+
+# Deploy to AWS (one command!)
+./aws/deploy.sh
+```
+
+**AWS deployment includes:**
+- ✅ ECS Fargate (serverless containers)
+- ✅ Application Load Balancer
+- ✅ All services in containers
+- ✅ Automatic scaling
+- ✅ CloudWatch monitoring
+- ✅ Cost-effective (~$20-40/month)
+
+### Option 2: Local Development Setup
+
+#### Automated Setup (Recommended)
 
 ```bash
 # Clone the repository
@@ -60,7 +81,7 @@ The setup script will:
 - Create database schema and seed data
 - Build and test the application
 
-### Manual Setup
+#### Manual Setup
 
 #### 1. Clone and Install
 
@@ -334,6 +355,7 @@ The application is optimized for performance with:
 - **Health Check**: http://localhost:4323/api/health (Service status)
 
 ### Development Documentation
+- **AWS Deployment**: See [aws/README.md](aws/README.md) for complete AWS deployment guide
 - **Environment Variables**: See [env.example](env.example) for required configuration
 - **Database Schema**: See [prisma/schema.prisma](prisma/schema.prisma) for data model
 - **Docker Configuration**: See [docker-compose.yml](docker-compose.yml) for service setup
@@ -354,7 +376,24 @@ npm test
 
 ## 🚀 Deployment
 
-### Quick Deploy
+### AWS Deployment (Recommended)
+```bash
+# Clone and deploy to AWS
+git clone <repository-url>
+cd CookBook
+./aws/deploy.sh
+
+# Check status
+./aws/check-status.sh
+
+# Update environment variables
+./aws/update-env.sh
+
+# Cleanup when done
+./aws/cleanup.sh
+```
+
+### Local Development
 ```bash
 # Clone and setup
 git clone <repository-url>
