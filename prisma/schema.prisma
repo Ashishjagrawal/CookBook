@@ -1,0 +1,186 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  username  String   @unique
+  password  String
+  firstName String?
+  lastName  String?
+  bio       String?
+  avatar    String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  recipes   Recipe[]
+  ratings   Rating[]
+  comments  Comment[]
+  followers Follow[] @relation("UserFollowers")
+  following Follow[] @relation("UserFollowing")
+  notifications Notification[]
+
+  @@map("users")
+}
+
+model Recipe {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  imageUrl    String?
+  prepTime    Int?     // in minutes
+  cookTime    Int?     // in minutes
+  servings    Int?
+  difficulty  Difficulty @default(EASY)
+  cuisine     String?
+  tags        String[] // Array of tags
+  isPublic    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  authorId    String
+  author      User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  ingredients Ingredient[]
+  instructions Instruction[]
+  ratings     Rating[]
+  comments    Comment[]
+
+  @@map("recipes")
+}
+
+model Ingredient {
+  id       String  @id @default(cuid())
+  name     String
+  amount   Float?
+  unit     String?
+  notes    String?
+  order    Int
+
+  // Relations
+  recipeId String
+  recipe   Recipe  @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@map("ingredients")
+}
+
+model Instruction {
+  id       String  @id @default(cuid())
+  step     String
+  order    Int
+  imageUrl String?
+
+  // Relations
+  recipeId String
+  recipe   Recipe  @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@map("instructions")
+}
+
+model Rating {
+  id        String   @id @default(cuid())
+  rating    Int      // 1-5 stars
+  review    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipeId  String
+  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, recipeId])
+  @@map("ratings")
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipeId  String
+  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@map("comments")
+}
+
+model Follow {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+
+  // Relations
+  followerId  String
+  follower    User     @relation("UserFollowers", fields: [followerId], references: [id], onDelete: Cascade)
+  followingId String
+  following   User     @relation("UserFollowing", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@map("follows")
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  type      NotificationType
+  title     String
+  message   String
+  isRead    Boolean          @default(false)
+  data      Json?            // Additional data for the notification
+  createdAt DateTime         @default(now())
+
+  // Relations
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum NotificationType {
+  NEW_RECIPE
+  NEW_RATING
+  NEW_COMMENT
+  NEW_FOLLOWER
+  RECIPE_APPROVED
+  RECIPE_REJECTED
+}
+
+model SearchAnalytics {
+  id        String   @id @default(cuid())
+  query     String
+  filters   String   // JSON string of filters
+  timestamp DateTime @default(now())
+
+  @@map("search_analytics")
+}
+
+model PerformanceMetrics {
+  id        String   @id @default(cuid())
+  operation String
+  duration  Int      // Duration in milliseconds
+  success   Boolean
+  metadata  String?  // JSON string of additional data
+  timestamp DateTime @default(now())
+
+  @@map("performance_metrics")
+}

@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: recipe_app
+    environment:
+      - DATABASE_URL=postgresql://recipe_user:recipe_password@postgres:5432/recipe_platform?schema=public
+      - REDIS_HOST=redis
+      - ELASTICSEARCH_NODE=http://elasticsearch:9200
+      - NODE_ENV=production
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+      - redis
+      - elasticsearch
+    networks:
+      - recipe_network
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:15
+    container_name: recipe_postgres_prod
+    environment:
+      POSTGRES_DB: recipe_platform
+      POSTGRES_USER: recipe_user
+      POSTGRES_PASSWORD: recipe_password
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+    networks:
+      - recipe_network
+    restart: unless-stopped
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: recipe_elasticsearch_prod
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+    volumes:
+      - elasticsearch_data_prod:/usr/share/elasticsearch/data
+    networks:
+      - recipe_network
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: recipe_redis_prod
+    volumes:
+      - redis_data_prod:/data
+    networks:
+      - recipe_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data_prod:
+  elasticsearch_data_prod:
+  redis_data_prod:
+
+networks:
+  recipe_network:
+    driver: bridge
