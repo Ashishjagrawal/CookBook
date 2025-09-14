@@ -256,6 +256,64 @@ This document contains the key architectural decisions made during the developme
 - ⚠️ Additional infrastructure complexity
 - ⚠️ Need for Docker knowledge
 
+## ADR-011: Cloud Infrastructure Strategy
+
+**Date**: 2025-09-14  
+**Status**: Accepted  
+**Context**: Need to deploy the application to AWS for production access and demonstration.
+
+**Decision**: 
+- Use AWS ECS Fargate for container orchestration
+- Use AWS RDS PostgreSQL for managed database
+- Use AWS Application Load Balancer for traffic distribution
+- Use AWS ECR for container image storage
+- Use AWS CloudFormation for infrastructure as code
+- Implement automatic database migrations on container startup
+
+**Rationale**:
+- ECS Fargate provides serverless container management
+- RDS offers managed PostgreSQL with automatic backups
+- ALB provides high availability and SSL termination
+- ECR integrates seamlessly with ECS
+- CloudFormation ensures reproducible infrastructure
+- Automatic migrations ensure database schema consistency
+
+**Consequences**:
+- ✅ Production-ready deployment
+- ✅ Scalable and reliable infrastructure
+- ✅ Managed services reduce operational overhead
+- ✅ Infrastructure as code ensures reproducibility
+- ✅ Automatic migrations prevent deployment issues
+- ⚠️ AWS-specific vendor lock-in
+- ⚠️ Additional cost for managed services
+- ⚠️ Need for AWS knowledge and configuration
+
+## ADR-012: Database Migration Strategy
+
+**Date**: 2025-09-14  
+**Status**: Accepted  
+**Context**: Need to ensure database schema is properly applied in cloud deployment.
+
+**Decision**: 
+- Run Prisma migrations automatically on container startup
+- Use `npx prisma migrate deploy` for production migrations
+- Implement startup script to handle migration execution
+- Ensure migrations run before application starts
+
+**Rationale**:
+- Automatic migrations ensure schema consistency
+- Production-safe migration command prevents data loss
+- Startup script ensures migrations complete before app starts
+- Prevents "table does not exist" errors in production
+
+**Consequences**:
+- ✅ Reliable database schema deployment
+- ✅ No manual intervention required
+- ✅ Prevents application startup failures
+- ✅ Ensures data consistency
+- ⚠️ Slightly longer container startup time
+- ⚠️ Migration failures can prevent app startup
+
 ## Summary
 
 These architectural decisions collectively create a modern, scalable, and maintainable recipe sharing platform that meets all performance and functional requirements while providing a solid foundation for future enhancements.
